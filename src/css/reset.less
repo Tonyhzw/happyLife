@@ -1,0 +1,22 @@
+@import '~iview/src/styles/index.less';
+
+// 下面是要覆盖的变量，例如：
+//@primary-color: #8c0776;
+body{
+  background-color: #fafafa;
+}
+#app{
+  margin: 0 auto;
+}
+@media all and (max-width:980px) {
+    #app {
+        //max-width: 600px;
+        width:100%;
+    }
+}
+
+@media all and (min-width:1000px) {
+    #app {
+        max-width: 980px;
+    }
+}
