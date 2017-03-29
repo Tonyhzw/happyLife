@@ -103,13 +103,17 @@
 <script>
 import axios from 'axios'
 import autosize from 'autosize'
-import showdown from 'showdown'
+import marked from 'marked'
 import hljs from 'highlight.js'
 
 export default{
     ready(){
         autosize(document.querySelectorAll('textarea.content'));
-        hljs.initHighlightingOnLoad();
+        marked.setOptions({
+        highlight: function (code) {
+          return hljs.highlightAuto(code).value;
+        }
+      });
     },
     data(){
         return{
@@ -122,8 +126,7 @@ export default{
     },
     computed:{
        htmlStr:function(){
-          let converter = new showdown.Converter();
-          return converter.makeHtml(this.formItem.textarea);
+          return marked(this.formItem.textarea);
        }
     },
     methods:{
