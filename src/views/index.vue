@@ -26,9 +26,6 @@
                </div>
                <div class="post-content">
                  <div class="post" v-for="item in blogData" key="item.blogId">
-                 <div class="img-cover">
-                   <a v-link="{ name : 'post', params : {id:item.blogId} }"><img src="" /></a>
-                 </div>
                  <h2 class="title left">
                    <a v-link="{ name : 'post', params : {id:item.blogId} }">{{item.title}}</a>
                  </h2>

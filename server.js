@@ -4,30 +4,35 @@ var parseurl = require('parseurl');//解析url
 var session = require('express-session');//设置session
 var cookieParser = require('cookie-parser');//解析cookie
 var bodyParser = require('body-parser');
+var MySQLStore = require('express-mysql-session')(session);
+var moment = require('moment');
+
+var options = {
+	host: 'localhost',
+	port: 3306,
+	user: 'root',
+	password: 'newpass',
+	database: 'sessionDB',
+  port: 3306
+};;
 
 var app = express();
 
 app.use(express.static('public'));
 
+var sessionStore = new MySQLStore(options);
+
 app.use(session({
   secret: 'keyboard cat',
+  store: sessionStore,
   cookie: { maxAge: 60000 },
   resave: false,
   saveUninitialized: true
 }));
-
-app.use(function (req, res, next) {
-  // var views = req.session.views
-  // if (!views) {
-  //   views = req.session.views = {}
-  // }
-  // // get the url pathname
-  // var pathname = parseurl(req).pathname
-  // // count the views
-  // views[pathname] = (views[pathname] || 0) + 1
-
-  next();
-});
+// app.use(function (req, res, next) {
+//   //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
+//   next();
+// });
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());//若需要使用签名，需要指定一个secret,字符串,否者会报错
@@ -37,7 +42,8 @@ app.all('*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1')
+    res.header("X-Powered-By",' 3.2.1');
+    //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
     next();
 });
 // 查询所有博客数据
@@ -79,9 +85,50 @@ app.get('/getCategoryForBlog',function(req,res){
       res.send(vals);
     });
 });
+//提交博客数据到数据库中保存
+app.post('/postNew',function(req,res){
+    //校验用户是否登陆
+    let sid =req.cookies.sid;
+    console.dir(req.cookies);
+    console.log('sid',sid);
+    sessionStore.get(sid,function(err,session){
+        if(err||!session){
+          console.log("--- session not found");
+        }else{
+          console.log("--- session found");
+          let title = req.body.title;
+          let category = req.body.category;
+          let content = req.body.content;
+          let blogId = req.body.blogId;
+          let currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
+          let sql="";
+          //更新博客
+          if(!!blogId){
+            sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"' where blogId = "+ blogId+";";
+          }else{
+            blogId = moment().unix();
+            sql = "insert into data(blogId,title,content,writeTime) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"');";
+          }
+          //更新标签
+          let factory = require('./server/util.js');
+          for(let i = 0; i < category.length; i++){
+            let uid = factory.uuid(9,10);
+            sql += "insert into tag(tagId,tagName,num) values("+uid+",'"+category[i]+"',1);";
+            //更新addTags表
+            sql += "insert into addTags(tagId,blogId) values("+uid+","+blogId+");";
+          }
+          //批量操作数据库
+          console.log(sql);
+          query(sql,function(err,vals,fields){
+              console.log("sql excuted");
+              res.send("ok");
+          });
+        }
+    });
+});
 //登陆验证
 app.post('/login',function(req,res){
-    res.header("Content-Type", "application/json;charset=utf-8");
+    //res.header("Content-Type", "application/json;charset=utf-8");
     var username = req.body.username;
     var password = req.body.password;
     //过滤
@@ -91,6 +138,11 @@ app.post('/login',function(req,res){
         //登录成功
         //res.cookie('mycookie', '1234567890', { domain:'localhost',secure:false, maxAage:120000, httpOnly: true });
         //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly');
+        // sessionStore.set(req.session.id, req.session, function(err){
+        //    res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
+        //    console.log("---- mysql save");
+        //    res.send("ok");
+        //  });
         req.session.save(function(err) {
           // session saved
           res.cookie('sid',req.session.id,{ maxAge: 900000, httpOnly: false});

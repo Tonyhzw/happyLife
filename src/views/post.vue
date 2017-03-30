@@ -78,7 +78,8 @@ export default {
         });
       },
       displayTime(timeStr){
-          return moment(timeStr).format("YYYY-MM-DD HH:mm:ss");
+          //return moment(timeStr).format("YYYY-MM-DD HH:mm:ss");
+          return moment(timeStr).fromNow();
       },
       update(){
          console.log("You are going to update.");
