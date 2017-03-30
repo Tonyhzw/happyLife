@@ -17,7 +17,7 @@
                 <span class="delete" span="1" v-else>删除</span>
              </Row>
              <div class="main-content">
-               <p>{{blogData.content}}</p>
+               <p v-html="htmlStr"></p>
              </div>
            </div>
         </Row>
@@ -25,11 +25,23 @@
 </div>
 </template>
 <script>
-import axios from "axios";
-import moment from "moment"
+import axios from 'axios'
+import moment from 'moment'
+import marked from 'marked'
+import hljs from 'highlight.js'
+
 export default {
     ready(){
        this.fetchData();
+       marked.setOptions({
+         highlight: function (code) {
+           return hljs.highlightAuto(code).value;
+         }
+       });
+    },
+    data(){
+      return {
+      }
     },
     computed:{
        blogData:function(){
@@ -37,6 +49,9 @@ export default {
        },
        islogin:function(){
           return this.$store.state.islogin;
+       },
+       htmlStr:function(){
+         if(this.$store.state.blogData) return marked(this.$store.state.blogData[0].content);
        }
     },
     components:{
@@ -89,10 +104,32 @@ export default {
          this.$Modal.confirm({
              title:title,
              content:content,
-             onOk:function(){
-                console.log("ok to delete");
+             onOk:()=>{
+               axios.post('/deletePost',
+                 {
+                   blogId: this.$route.params.id
+                 },
+                 // `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
+                 // 它可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
+                 {
+                   baseURL: 'http://127.0.0.1:8081'
+                 }
+               ).then((response) => {
+                   var data = response.data;
+                   if(data=='ok'){
+                     this.$Notice.success({
+                          title: '删除成功',
+                          desc:  '该博客已成功删除。'
+                     });
+                     //重定向到index
+                     console.dir(this.$route);
+                     router.replace("{ name : 'index'}");
+                   }
+                 }).catch((error)=>{
+                   console.log(error);
+                 });
              },
-             onCancel:function(){
+             onCancel:()=>{
                console.log("cancel to delete");
              }
          });
@@ -102,6 +139,8 @@ export default {
 </script>
 
 <style scoped>
+@import "./../css/github-markdown.css";
+@import "./../css/default.css";
 .post{
     box-shadow: 0px 0px 2px rgba(0,0,0,0.3);
     width: 100%;
@@ -139,4 +178,11 @@ export default {
     color:#000;
     cursor: pointer;
 }
+.markdown-body {
+		box-sizing: border-box;
+		min-width: 200px;
+		max-width: 980px;
+		margin: 0 auto;
+		padding: 45px;
+	}
 </style>

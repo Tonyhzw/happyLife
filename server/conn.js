@@ -2,6 +2,7 @@ var mysql=require("mysql");
 var pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
+    multipleStatements:true,
     password: 'newpass',
     database: 'blogs',
     port: 3306

@@ -98,7 +98,8 @@
     import Vue from 'vue'
     import Vuex from 'vuex'
     import axios from 'axios'
-
+    import Cookies from 'js-cookie'
+    //注入
     export default {
         store,
         data() {
@@ -111,7 +112,15 @@
         },
         computed:{
             islogin: function(){
-              return store.state.islogin;
+              var loginState = store.state.islogin;
+              var isCookie = this.$cookie.get('test');
+              console.log(isCookie);
+              console.log(document.cookie);
+              if(!loginState&&(!!isCookie)){
+                store.commit('loginSuccess');
+                return true;
+              }
+              return loginState;
             },
             tips: function(){
               return store.state.loginTips;

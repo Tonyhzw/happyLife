@@ -117,10 +117,10 @@ export default{
     ready(){
         autosize(document.querySelectorAll('textarea.content'));
         marked.setOptions({
-        highlight: function (code) {
-          return hljs.highlightAuto(code).value;
-        }
-      });
+          highlight: function (code) {
+            return hljs.highlightAuto(code).value;
+          }
+        });
     },
     data(){
         return{

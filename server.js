@@ -85,47 +85,6 @@ app.get('/getCategoryForBlog',function(req,res){
       res.send(vals);
     });
 });
-//提交博客数据到数据库中保存
-app.post('/postNew',function(req,res){
-    //校验用户是否登陆
-    let sid =req.cookies.sid;
-    console.dir(req.cookies);
-    console.log('sid',sid);
-    sessionStore.get(sid,function(err,session){
-        if(err||!session){
-          console.log("--- session not found");
-        }else{
-          console.log("--- session found");
-          let title = req.body.title;
-          let category = req.body.category;
-          let content = req.body.content;
-          let blogId = req.body.blogId;
-          let currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
-          let sql="";
-          //更新博客
-          if(!!blogId){
-            sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"' where blogId = "+ blogId+";";
-          }else{
-            blogId = moment().unix();
-            sql = "insert into data(blogId,title,content,writeTime) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"');";
-          }
-          //更新标签
-          let factory = require('./server/util.js');
-          for(let i = 0; i < category.length; i++){
-            let uid = factory.uuid(9,10);
-            sql += "insert into tag(tagId,tagName,num) values("+uid+",'"+category[i]+"',1);";
-            //更新addTags表
-            sql += "insert into addTags(tagId,blogId) values("+uid+","+blogId+");";
-          }
-          //批量操作数据库
-          console.log(sql);
-          query(sql,function(err,vals,fields){
-              console.log("sql excuted");
-              res.send("ok");
-          });
-        }
-    });
-});
 //登陆验证
 app.post('/login',function(req,res){
     //res.header("Content-Type", "application/json;charset=utf-8");
@@ -138,16 +97,17 @@ app.post('/login',function(req,res){
         //登录成功
         //res.cookie('mycookie', '1234567890', { domain:'localhost',secure:false, maxAage:120000, httpOnly: true });
         //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly');
-        // sessionStore.set(req.session.id, req.session, function(err){
-        //    res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
-        //    console.log("---- mysql save");
-        //    res.send("ok");
-        //  });
-        req.session.save(function(err) {
-          // session saved
-          res.cookie('sid',req.session.id,{ maxAge: 900000, httpOnly: false});
-          res.send("ok");
-        });
+        sessionStore.set(req.session.id, req.session, function(err){
+           //res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
+					 res.append('Set-Cookie', 'sid='+req.session.id+'; maxAage:120000; Path=/; HttpOnly');
+           console.log("---- mysql save");
+           res.send("ok");
+         });
+        // req.session.save(function(err) {
+        //   // session saved
+        //   res.cookie('sid',req.session.id,{ maxAge: 900000, httpOnly: false});
+        //   res.send("ok");
+        // });
       }else{
         //登陆失败
         res.send("false");
@@ -155,7 +115,74 @@ app.post('/login',function(req,res){
 
     });
 });
-
+//用来校验权限
+function checkAuth(req,res){
+		let sid = req.cookies.sid;
+		//鉴权查询是异步的，因此需要返回promise
+		return new Promise(function(resolve,reject){
+			sessionStore.get(sid,function(err,session){
+			 if(err||!session){
+					console.log("--session not found--");
+					reject();
+			 }else{
+					console.log("--session found--");
+					resolve();
+			 }
+		 });
+		});
+}
+//提交博客数据到数据库中保存
+app.post('/postNew',function(req,res){
+	  var promise = checkAuth(req,res);
+		promise.then(()=>{
+			let title = req.body.title;
+			let category = req.body.category;
+			let content = req.body.content;
+			let blogId = req.body.blogId;
+			let currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
+			let sql="";
+			//更新博客
+			if(!!blogId){
+				sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"' where blogId = "+ blogId+";";
+			}else{
+				blogId = moment().unix();
+				sql = "insert into data(blogId,title,content,writeTime) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"');";
+			}
+			//更新标签
+			let factory = require('./server/util.js');
+			for(let i = 0; i < category.length; i++){
+				let uid = factory.uuid(9,10);
+				sql += "insert into tag(tagId,tagName,num) values("+uid+",'"+category[i]+"',1);";
+				//更新addTags表
+				sql += "insert into addTags(tagId,blogId) values("+uid+","+blogId+");";
+			}
+			//批量操作数据库
+			console.log(sql);
+			query(sql,function(err,vals,fields){
+					console.log("sql excuted");
+					res.send("ok");
+			});
+		}).catch(()=>{
+			  res.send("bad");
+		});
+});
+//删除博客数据
+app.post('/deletePost',function(req,res){
+	 var promise = checkAuth(req,res);
+	 promise.then(()=>{
+		 let blogId = req.body.blogId;
+		 console.log(blogId);
+		 let sql = "delete from data where blogId = "+blogId+";";
+				 sql += "delete from addTags where blogId = "+blogId+";";
+		 console.log(sql);
+		 query(sql,function(err,vals,fields){
+				 console.log("sql excuted");
+				 res.send("ok");
+		 });
+	 }).catch(()=>{
+		  res.send("bad");
+	 });
+});
 app.get('/', function (req, res) {
    res.sendFile( __dirname + "/"+ "index_prod.html" );
 })

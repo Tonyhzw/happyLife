@@ -4,7 +4,9 @@ import App from 'components/app.vue';
 import Routers from './router';
 import iView from 'iview';
 import './css/reset.less';//使用重置主题，应用于全局
-
+import VueCookie from 'vue-cookie';
+// Tell Vue to use the plugin
+Vue.use(VueCookie);
 Vue.use(VueRouter);
 Vue.use(iView);
 
@@ -30,5 +32,7 @@ router.afterEach(() => {
 router.redirect({
     '*': "/index"
 });
-console.dir(App);
+
+App.router=router;
+
 router.start(App, '#app');
