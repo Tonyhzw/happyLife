@@ -4,11 +4,6 @@ const routers = {
             require(['./views/index.vue'], resolve);
         }
     },
-    '/login':{
-        component(resolve){
-            require(['./views/login.vue'],resolve);
-        }
-    },
     '/post/:id':{
         component(resolve){
             require(['./views/post.vue'],resolve);

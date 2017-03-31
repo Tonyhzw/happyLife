@@ -202,11 +202,6 @@ export default{
               content: this.formItem.textarea,
               description: this.formItem.description,
               blogId: blogId
-            },
-            // `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
-            // 它可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
-            {
-              baseURL: 'http://127.0.0.1:8081'
             }
           ).then((response) => {
               var data = response.data;
@@ -278,8 +273,7 @@ export default{
            params: {
              tagStr:str,
              isLike:true
-           },
-           baseURL:'http://127.0.0.1:8081'
+           }
          }).then((response) => {
              var data = response.data;
              this.$store.commit('getCandicateTags',{
@@ -298,8 +292,7 @@ export default{
               params: {
                 tagStr:str,
                 isLike:false
-              },
-              baseURL:'http://127.0.0.1:8081'
+              }
             }).then((response) => {
                 var data = response.data;
                 resolve(data);
@@ -347,8 +340,7 @@ export default{
         axios.get('/getBlog',{
           params:{
              blogId:this.$route.params.id
-          },
-          baseURL:'http://127.0.0.1:8081'
+          }
         }).then((response)=>{
           var data = response.data;
           this.formItem.input = data[0].title;
@@ -365,8 +357,7 @@ export default{
         axios.get('/getCategoryForBlog',{
           params: {
             blogId:id
-          },
-          baseURL:'http://127.0.0.1:8081'
+          }
         }).then((response) => {
             this.alCateArr = response.data;
         }).catch(function(error){

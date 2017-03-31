@@ -108,10 +108,7 @@ export default {
         axios.get('/getAll',{
           params:{
             pageNum:1
-          },
-          // `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
-          // 它可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
-          baseURL: 'http://127.0.0.1:8081',
+          }
         }).then((response) => {
             var data = response.data;
             data.forEach((val)=>{
@@ -130,8 +127,7 @@ export default {
           params: {
             categoryId:this.$route.params.category,
             pageNum:1
-          },
-          baseURL:'http://127.0.0.1:8081'
+          }
         }).then((response) => {
             var data = response.data;
             data.forEach((val)=>{
@@ -150,8 +146,7 @@ export default {
           params: {
             categoryId:null,
             pageNum:1
-          },
-          baseURL:'http://127.0.0.1:8081'
+          }
         }).then((response) => {
             var data = response.data;
             this.$store.commit('getCategoryAll',{
@@ -172,8 +167,7 @@ export default {
         axios.get('/getCategoryForBlog',{
           params: {
             blogId:id
-          },
-          baseURL:'http://127.0.0.1:8081'
+          }
         }).then((response) => {
             var data = { blogId :id, data: response.data};
             this.$store.commit('addTagsForBlog',{
