@@ -9,9 +9,9 @@
                 <a class="category" v-for="item in blogData.category" v-link="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</a>
              </div>
              <Row type="flex" class="meta">
-                <i-col offset="10" span="5" class="time" v-if="!!blogData.updateTime"><span>更新于：{{displayTime(blogData.updateTime)}}</span></i-col>
-                <i-col span="5" class="time"><span>创建于：{{displayTime(blogData.writeTime)}}</span></i-col>
-                <i-col span="2">浏览量: <span class="count">{{blogData.count}}</span></i-col>
+                <i-col offset="10" span="5" class="time updateTime" v-if="!!blogData.updateTime"><span>更新于：{{displayTime(blogData.updateTime)}}</span></i-col>
+                <i-col span="5" class="time createTime"><span>创建于：{{displayTime(blogData.writeTime)}}</span></i-col>
+                <i-col span="2" class="watchCount">浏览量: <span class="count">{{blogData.count}}</span></i-col>
                 <a span="1" class="update active" @click="update" v-if="islogin" v-link="{name:'updatePost',params:{id:blogData.blogId}}">编辑</a>
                 <span class="update" span="1" v-else>编辑</span>
                 <a span="1" class="delete active" @click="instance('警告')" v-if="islogin">删除</a>
@@ -150,9 +150,6 @@ export default {
     width: 100%;
     padding: 16px;
     margin-top: 20px;
-}
-.title{
-    font-size: 28px;
 }
 .info{
     color: #01579b;

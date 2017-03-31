@@ -659,7 +659,6 @@ body {
 
 #app {
     color: #2c3e50;
-    width: 100%;
     font-family: Source Sans Pro, Helvetica, sans-serif;
     text-align: center;
 }
