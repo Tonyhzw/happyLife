@@ -1,6 +1,5 @@
 var express = require('express');
 var query = require('./server/conn.js');
-var parseurl = require('parseurl');//解析url
 var session = require('express-session');//设置session
 var cookieParser = require('cookie-parser');//解析cookie
 var bodyParser = require('body-parser');
@@ -29,10 +28,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-// app.use(function (req, res, next) {
-//   //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
-//   next();
-// });
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());//若需要使用签名，需要指定一个secret,字符串,否者会报错
@@ -63,17 +59,26 @@ app.get('/getAll',function(req,res){
 //查询对应博客id的博客数据
 app.get('/getBlog',function(req,res){
     var blogId = req.query.blogId;
-    //连接数据库
-    var sql="select * from data where blogId = "+ blogId+";";
+    //连接数据库，查找对应数据，并更新阅览量
+    var sql = "select * from data where blogId = "+ blogId+";";
     query(sql,function(err,vals,fields) {
+			let count = vals[0].count+1;
+			sql = "update data set count ="+count+";";
+			console.log(sql);
+			query(sql,function(err,vals,fields){});
       res.send(vals);
     });
 });
 //查询对应类别标签的所有博客数据
 app.get('/getCategory',function(req,res){
     var categoryId = req.query.categoryId;
-    var sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+categoryId+";";
-    query(sql,function(err,vals,fields) {
+		var sql = "";
+		if(!!categoryId){
+    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+categoryId+";";
+		}else{
+			sql = "select * from tag;";
+		}
+		query(sql,function(err,vals,fields) {
       res.send(vals);
     });
 });
@@ -81,6 +86,14 @@ app.get('/getCategory',function(req,res){
 app.get('/getCategoryForBlog',function(req,res){
     var blogId = req.query.blogId;
     var sql = "select tag.tagId,tag.tagName from tag join addTags on tag.tagId = addTags.tagId and addTags.blogId = "+blogId+";";
+    query(sql,function(err,vals,fields) {
+      res.send(vals);
+    });
+});
+//查询输入对应的已存在的tags
+app.get('/getTags',function(req,res){
+    var tagStr = req.query.tagStr;
+    var sql = "select tagId,tagName from tag where tagName like '%"+tagStr+"%' limit 5;";
     query(sql,function(err,vals,fields) {
       res.send(vals);
     });
@@ -137,16 +150,19 @@ app.post('/postNew',function(req,res){
 		promise.then(()=>{
 			let title = req.body.title;
 			let category = req.body.category;
+			let alCateArr = req.body.alCateArr;
+			let delCateArr = req.body.delCateArr;
 			let content = req.body.content;
+			let description = req.body.description;
 			let blogId = req.body.blogId;
 			let currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
 			let sql="";
 			//更新博客
 			if(!!blogId){
-				sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"' where blogId = "+ blogId+";";
+				sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"',description = '"+description+"' where blogId = "+ blogId+";";
 			}else{
 				blogId = moment().unix();
-				sql = "insert into data(blogId,title,content,writeTime) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"');";
+				sql = "insert into data(blogId,title,content,writeTime,description) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"','"+description+"');";
 			}
 			//更新标签
 			let factory = require('./server/util.js');
@@ -155,6 +171,14 @@ app.post('/postNew',function(req,res){
 				sql += "insert into tag(tagId,tagName,num) values("+uid+",'"+category[i]+"',1);";
 				//更新addTags表
 				sql += "insert into addTags(tagId,blogId) values("+uid+","+blogId+");";
+			}
+			//更新已存在标签的关联关系
+			for(let i = 0; i < alCateArr.length; i++){
+				 sql += "insert into addTags(tagId,tagName) values("+alCateArr[i].tagId+",'"+alCateArr[i].tagName+"')";
+			}
+			//删除已存在的标签的关联关系
+			for(let i=0; i < delCateArr.length;i++){
+				 sql += "delete from addTags where tagId = "+delCateArr[i].tagId+" and blogId= "+blogId+";";
 			}
 			//批量操作数据库
 			console.log(sql);
@@ -171,7 +195,6 @@ app.post('/deletePost',function(req,res){
 	 var promise = checkAuth(req,res);
 	 promise.then(()=>{
 		 let blogId = req.body.blogId;
-		 console.log(blogId);
 		 let sql = "delete from data where blogId = "+blogId+";";
 				 sql += "delete from addTags where blogId = "+blogId+";";
 		 console.log(sql);
@@ -183,6 +206,23 @@ app.post('/deletePost',function(req,res){
 		  res.send("bad");
 	 });
 });
+//删除tag
+app.post('/deleteTag',function(req,res){
+	 var promise = checkAuth(req,res);
+	 promise.then(()=>{
+		 let tagId = req.body.tagId;
+		 console.log(tagId);
+		 let sql = "delete from tag where tagId = "+tagId+";";
+		 console.log(sql);
+		 query(sql,function(err,vals,fields){
+				 console.log("sql excuted");
+				 res.send("ok");
+		 });
+	 }).catch(()=>{
+		  res.send("bad");
+	 });
+});
+
 app.get('/', function (req, res) {
    res.sendFile( __dirname + "/"+ "index_prod.html" );
 })

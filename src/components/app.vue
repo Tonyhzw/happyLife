@@ -3,8 +3,8 @@
     <div class="layout-ceiling">
         <div class="layout-ceiling-main">
           <!-- <a href="#/login" :class="{ active:isActive }">登录</a> -->
-          <Button  v-if="!islogin" type="ghost" shape="circle" class="login-button" @click="showLoginModal">登陆</Button>
-          <a v-if="islogin" href="">欢迎您</a>
+          <Button  v-if="!islogin" class="login-button" @click="showLoginModal">登陆</Button>
+          <a v-if="islogin" v-link="{name:'newPost'}">欢迎您</a>
         </div>
     </div>
     <Modal
@@ -29,7 +29,7 @@
 </template>
 <style>
 .layout-ceiling{
-    background: #01579b;
+    background: #0091ea;
     padding: 10px 0;
     overflow: hidden;
 }
@@ -38,10 +38,10 @@
     margin-right: 15px;
 }
 .layout-ceiling-main a{
-    color: #9ba7b5;
+    color: rgba(255,255,255,0.7);
 }
-.layout-ceiling-main a.active{
-    color: #e1f5fe;
+.layout-ceiling-main a:hover{
+    color: #fff;
 }
 .home{
     position: fixed;
@@ -92,6 +92,10 @@
     cursor: pointer;
     color: #fff;
 }
+button.login-button:hover {
+    background-color: #fff;
+    color: #5cadff;
+}
 </style>
 <script>
     import store from './../store/store.js';
@@ -112,15 +116,7 @@
         },
         computed:{
             islogin: function(){
-              var loginState = store.state.islogin;
-              var isCookie = this.$cookie.get('test');
-              console.log(isCookie);
-              console.log(document.cookie);
-              if(!loginState&&(!!isCookie)){
-                store.commit('loginSuccess');
-                return true;
-              }
-              return loginState;
+              return store.state.islogin;
             },
             tips: function(){
               return store.state.loginTips;

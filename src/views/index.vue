@@ -5,7 +5,11 @@
             <i-col span="6" class="layout-menu-left">
               <Row class="row category">
                 <h2 class="title"><Icon type="ios-pricetags"></Icon><span class="content">文章分类</span></h2>
-                <div class="content"></div>
+                <div class="content">
+                    <ul>
+                      <li v-for="cateAll in cateAllArr"><a v-link="{ name:'category',params:{category:cateAll.tagId}}">{{cateAll.tagName}}</a></li>
+                    </ul>
+                </div>
               </Row>
               <!-- <Row class="row wordCloud">
                 <h2 class="title"><Icon type="ios-cloud"></Icon><span class="content">网站词云</span></h2>
@@ -35,11 +39,11 @@
                       <span class="category">归类至：
                         <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
                       </span>
-                      <span class="count">阅读量：<span>10</span></span>
+                      <span class="count">阅读量：<span>{{item.count}}</span></span>
                     </p>
                  </div>
                  <div class="description left">
-                   <p>{{item.content}}</p>
+                   <p>{{displayDescription(item.description)}}</p>
                  </div>
                </div>
                </div>
@@ -56,6 +60,9 @@ import moment from 'moment';
 
 export default {
     ready() {
+        //取回所有的分类信息
+        this.getCategoryAll();
+        //按条件取回其他数据
         if(!!this.categoryId)  this.getCategory();
         else this.getAll();
     },
@@ -77,6 +84,9 @@ export default {
       },
       blogData:function(){
         return this.$store.state.blogData;
+      },
+      cateAllArr:function(){
+        return this.$store.state.cateAllArr;
       },
       getCategoryName:function(){
         var blogData = this.$store.state.blogData;
@@ -134,6 +144,29 @@ export default {
         }).catch((error)=>{
             console.log(error);
         });
+      },
+      getCategoryAll(){
+        axios.get('/getCategory',{
+          params: {
+            categoryId:null,
+            pageNum:1
+          },
+          baseURL:'http://127.0.0.1:8081'
+        }).then((response) => {
+            var data = response.data;
+            this.$store.commit('getCategoryAll',{
+                data:data
+            });
+        }).catch((error)=>{
+            console.log(error);
+        });
+      },
+      displayDescription(str){
+        if(!!str){
+          return str;
+        }else{
+          return "本篇没有简要介绍噢...";
+        }
       },
       getCategoryForBlog(id){
         axios.get('/getCategoryForBlog',{
@@ -657,7 +690,17 @@ body {
 }
 .layout-menu-left .row > .content{
     margin:16px;
-    height: 32px;
+    font-size: 14px;
+}
+.layout-menu-left .row > .content li{
+    width: 50%;
+    display: inline-block;
+}
+.layout-menu-left .row > .content li:hover{
+    cursor: pointer;
+}
+.layout-menu-left .row > .content li:hover a{
+    color:#01579b;
 }
 .links .content a{
    padding-right: 10px;
@@ -675,33 +718,36 @@ body {
     border-bottom: 1px solid #cacaca;
     margin-bottom: 10px;
 }
+.main-content .category-title .category{
+   padding-left: 10px;
+}
 .main-content .post{
    box-shadow: 0 0 1px rgba(0,0,0,0.3);
-   padding-bottom: 16px;
-   margin-bottom: 16px;
 }
 .main-content .post .left{
    display: flex;
    margin-left: 16px;
-}
-.main-content .post .img-cover{
-   height: 280px;
+   margin-right: 16px;
 }
 .main-content .post .title{
-   margin-top:16px;
-   color: #01579B;
+   padding-top:9px;
    font-weight: 700;
    transition: color .3s,background-color .3s;
 }
+.main-content .post .title a{
+   color:rgba(0,0,0,0.7);
+}
 .main-content .post .meta{
    margin-top: 16px;
+   padding-bottom: 10px;
    line-height: 18px;
-   font-size: 15px;
+   font-size: 12px;
+   border-bottom: 1px solid rgba(0,0,0,0.3);
 }
 .main-content .post .meta a{
    padding-right: 10px;
 }
 .main-content .post .description{
-   margin-top: 16px;
+   padding: 16px 0;
 }
 </style>

@@ -24,7 +24,8 @@ const routers = {
     '/newPost':{
        component(resolve){
          require(['./views/newPost.vue'],resolve);
-       }
+       },
+       name:'newPost'
     },
     '/updatePost/:id':{
       component(resolve){
