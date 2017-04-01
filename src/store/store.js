@@ -8,7 +8,6 @@ Vue.use(Vuex);
 
 const state = {
       islogin:false,
-      loginTips:"",
       blogData:null,
       categoryForSingle:null,
       candicateArr:[],

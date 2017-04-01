@@ -10,6 +10,12 @@ const routers = {
         },
         name:'post'
     },
+    '/about':{
+       component(resolve){
+            require(['./views/about.vue'],resolve);
+       },
+       name:'about'
+    },
     '/category/:category':{
         component(resolve){
             require(['./views/index.vue'],resolve);
