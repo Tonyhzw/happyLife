@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');//解析cookie
 var bodyParser = require('body-parser');
 var MySQLStore = require('express-mysql-session')(session);
 var moment = require('moment');
+var mysql=require("mysql");
+
 
 var options = {
 	host: '127.0.0.1',
@@ -46,12 +48,6 @@ app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;
     //连接数据库
     query("select * from data;",function(err,vals,fields) {
-      console.dir(req.session.id);
-      // Cookies that have not been signed
-      console.log('Cookies: ', req.cookies)
-
-      // Cookies that have been signed
-      console.log('Signed Cookies: ', req.signedCookies)
       res.send(vals);
     });
 });
@@ -59,11 +55,11 @@ app.get('/getAll',function(req,res){
 app.get('/getBlog',function(req,res){
     var blogId = req.query.blogId;
     //连接数据库，查找对应数据，并更新阅览量
-    var sql = "select * from data where blogId = "+ blogId+";";
+    var sql = "select * from data where blogId = "+ mysql.escape(blogId)+";";
     query(sql,function(err,vals,fields) {
 			let count = vals[0].count+1;
-			sql = "update data set count ="+count+";";
-			console.log(sql);
+			sql = "update data set count ="+mysql.escape(count)+";";
+			//console.log(sql);
 			query(sql,function(err,vals,fields){});
       res.send(vals);
     });
@@ -73,7 +69,7 @@ app.get('/getCategory',function(req,res){
     var categoryId = req.query.categoryId;
 		var sql = "";
 		if(!!categoryId){
-    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+categoryId+";";
+    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+";";
 		}else{
 			sql = "select * from tag;";
 		}
@@ -84,7 +80,7 @@ app.get('/getCategory',function(req,res){
 //查询对应博客的所有类别标签
 app.get('/getCategoryForBlog',function(req,res){
     var blogId = req.query.blogId;
-    var sql = "select tag.tagId,tag.tagName from tag join addTags on tag.tagId = addTags.tagId and addTags.blogId = "+blogId+";";
+    var sql = "select tag.tagId,tag.tagName from tag join addTags on tag.tagId = addTags.tagId and addTags.blogId = "+mysql.escape(blogId)+";";
     query(sql,function(err,vals,fields) {
       res.send(vals);
     });
@@ -92,7 +88,7 @@ app.get('/getCategoryForBlog',function(req,res){
 //查询输入对应的已存在的tags
 app.get('/getTags',function(req,res){
     var tagStr = req.query.tagStr;
-    var sql = "select tagId,tagName from tag where tagName like '%"+tagStr+"%' limit 5;";
+    var sql = "select tagId,tagName from tag where tagName like '%"+mysql.escape(tagStr)+"%' limit 5;";
     query(sql,function(err,vals,fields) {
       res.send(vals);
     });
@@ -103,8 +99,9 @@ app.post('/login',function(req,res){
     var username = req.body.username;
     var password = req.body.password;
     //过滤
-    var sql = "select * from user where username = '"+ username+"' and password = "+password+" ;";
-    query(sql,function(err,vals,fields) {
+    var sql = "select * from user where username = "+ mysql.escape(username)+" and password = "+mysql.escape(password)+" ;";
+		console.log(sql);
+		query(sql,function(err,vals,fields) {
       if(vals.length == 1){
         //登录成功
         //res.cookie('mycookie', '1234567890', { domain:'localhost',secure:false, maxAage:120000, httpOnly: true });
@@ -112,7 +109,7 @@ app.post('/login',function(req,res){
         sessionStore.set(req.session.id, req.session, function(err){
            //res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
 					 res.append('Set-Cookie', 'sid='+req.session.id+'; maxAage:120000; Path=/; HttpOnly');
-           console.log("---- mysql save");
+           //console.log("---- mysql save");
            res.send("ok");
          });
         // req.session.save(function(err) {
@@ -134,10 +131,10 @@ function checkAuth(req,res){
 		return new Promise(function(resolve,reject){
 			sessionStore.get(sid,function(err,session){
 			 if(err||!session){
-					console.log("--session not found--");
+					//console.log("--session not found--");
 					reject();
 			 }else{
-					console.log("--session found--");
+					//console.log("--session found--");
 					resolve();
 			 }
 		 });
@@ -158,31 +155,31 @@ app.post('/postNew',function(req,res){
 			let sql="";
 			//更新博客
 			if(!!blogId){
-				sql = "update data set title = '"+ title+"', content = '"+ content+"', updateTime = '"+currentTime+"',description = '"+description+"' where blogId = "+ blogId+";";
+				sql = "update data set title = "+ mysql.escape(title)+", content = "+ mysql.escape(content)+", updateTime = "+mysql.escape(currentTime)+",description = "+mysql.escape(description)+" where blogId = "+ mysql.escape(blogId)+";";
 			}else{
 				blogId = moment().unix();
-				sql = "insert into data(blogId,title,content,writeTime,description) values("+blogId+",'"+title+"','"+content+"','"+currentTime+"','"+description+"');";
+				sql = "insert into data(blogId,title,content,writeTime,description) values("+mysql.escape(blogId)+","+mysql.escape(title)+","+mysql.escape(content)+","+mysql.escape(currentTime)+","+mysql.escape(description)+");";
 			}
 			//更新标签
 			let factory = require('./server/util.js');
 			for(let i = 0; i < category.length; i++){
 				let uid = factory.uuid(9,10);
-				sql += "insert into tag(tagId,tagName,num) values("+uid+",'"+category[i]+"',1);";
+				sql += "insert into tag(tagId,tagName,num) values("+mysql.escape(uid)+","+mysql.escape(category[i])+",1);";
 				//更新addTags表
-				sql += "insert into addTags(tagId,blogId) values("+uid+","+blogId+");";
+				sql += "insert into addTags(tagId,blogId) values("+mysql.escape(uid)+","+mysql.escape(blogId)+");";
 			}
 			//更新已存在标签的关联关系
 			for(let i = 0; i < alCateArr.length; i++){
-				 sql += "insert into addTags(tagId,tagName) values("+alCateArr[i].tagId+",'"+alCateArr[i].tagName+"')";
+				 sql += "insert into addTags(tagId,tagName) values("+mysql.escape(alCateArr[i].tagId)+","+mysql.escape(alCateArr[i].tagName)+")";
 			}
 			//删除已存在的标签的关联关系
 			for(let i=0; i < delCateArr.length;i++){
-				 sql += "delete from addTags where tagId = "+delCateArr[i].tagId+" and blogId= "+blogId+";";
+				 sql += "delete from addTags where tagId = "+mysql.escape(delCateArr[i].tagId)+" and blogId= "+mysql.escape(blogId)+";";
 			}
 			//批量操作数据库
-			console.log(sql);
+			//console.log(sql);
 			query(sql,function(err,vals,fields){
-					console.log("sql excuted");
+					//console.log("sql excuted");
 					res.send("ok");
 			});
 		}).catch(()=>{
@@ -194,8 +191,8 @@ app.post('/deletePost',function(req,res){
 	 var promise = checkAuth(req,res);
 	 promise.then(()=>{
 		 let blogId = req.body.blogId;
-		 let sql = "delete from data where blogId = "+blogId+";";
-				 sql += "delete from addTags where blogId = "+blogId+";";
+		 let sql = "delete from data where blogId = "+mysql.escape(blogId)+";";
+				 sql += "delete from addTags where blogId = "+mysql.escape(blogId)+";";
 		 console.log(sql);
 		 query(sql,function(err,vals,fields){
 				 console.log("sql excuted");
@@ -211,10 +208,10 @@ app.post('/deleteTag',function(req,res){
 	 promise.then(()=>{
 		 let tagId = req.body.tagId;
 		 console.log(tagId);
-		 let sql = "delete from tag where tagId = "+tagId+";";
+		 let sql = "delete from tag where tagId = "+mysql.escape(tagId)+";";
 		 console.log(sql);
 		 query(sql,function(err,vals,fields){
-				 console.log("sql excuted");
+				 //console.log("sql excuted");
 				 res.send("ok");
 		 });
 	 }).catch(()=>{
