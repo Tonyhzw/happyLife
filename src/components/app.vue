@@ -3,6 +3,7 @@
     <div class="layout-ceiling">
         <div class="layout-ceiling-main">
           <!-- <a href="#/login" :class="{ active:isActive }">登录</a> -->
+          <a v-link="{name:'about'}" class="about">关于本站</a>
           <Button  v-if="!islogin" class="login-button" @click="showLoginModal">登陆</Button>
           <a v-if="islogin" v-link="{name:'newPost'}">欢迎您</a>
         </div>
@@ -14,7 +15,7 @@
         @on-ok="login">
         <i-input :value.sync="username" name="username" placeholder="用户名" class=" username"></i-input>
         <i-input :value.sync="password" name="password" placeholder="密码" class=" password" type="password"></i-input>
-        <p class="tips">{{tips}}</p>
+        <p class="tips">{{loginTips}}</p>
     </Modal>
     <div>
         <router-view></router-view>
@@ -42,6 +43,9 @@
 }
 .layout-ceiling-main a:hover{
     color: #fff;
+}
+.about{
+    padding-right: 10px;
 }
 .home{
     position: fixed;
@@ -73,6 +77,9 @@
 .layout-copy{
     text-align: center;
     padding: 20px 0;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     color: #fff;
     background-color: #0091ea;
     margin-top: 20px;
@@ -110,6 +117,7 @@ button.login-button:hover {
             return {
                   modal6: false,
                   loading: true,
+                  loginTips:'',
                   username: '',
                   password: ''
             };
@@ -117,9 +125,6 @@ button.login-button:hover {
         computed:{
             islogin: function(){
               return store.state.islogin;
-            },
-            tips: function(){
-              return store.state.loginTips;
             }
         },
         ready() {
@@ -155,9 +160,7 @@ button.login-button:hover {
             login (e) {
                 //登陆验证
                 if(!this.username||!this.password){
-                    store.commit('updateTips',{
-                       data: "输入不正确，请完成输入。"
-                    });
+                    this.loginTips="输入不正确，请完成输入。";
                     this.loading=false;
                 }else{
                     axios.post('/login',
@@ -171,15 +174,11 @@ button.login-button:hover {
                           // 登陆成功，关闭登陆框
                           this.modal6=false;
                         }else{
-                          store.commit('updateTips',{
-                             data: "用户名与密码不正确，请完成输入。"
-                          });
+                          this.loginTips="用户名与密码不正确，请完成输入。";
                           this.loading=false;
                         }
                     }).catch((error)=>{
-                        store.commit('updateTips',{
-                           data: " 出现其他错误。"
-                        });
+                        this.loginTips="出现其他错误。";
                         this.loading=false;
                     });
               }

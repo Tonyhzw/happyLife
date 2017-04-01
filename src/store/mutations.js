@@ -12,14 +12,9 @@ export default {
         }
       });
     },
-    //更新登陆框提示
-    updateTips(state,payload){
-      state.loginTips = payload.data;
-    },
     //登陆成功
     loginSuccess(state){
       state.islogin = true;
-      state.loginTips = "";
     },
     //更新候选tag
     getCandicateTags(state,payload){
