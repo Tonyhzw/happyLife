@@ -345,6 +345,7 @@ export default{
           var data = response.data;
           this.formItem.input = data[0].title;
           this.formItem.textarea = data[0].content;
+          this.formItem.description = data[0].description;
           data.forEach((val)=>{
               this.getCategoryForBlog(this.$route.params.id);
               val.category=[];
