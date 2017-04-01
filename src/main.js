@@ -32,5 +32,5 @@ router.redirect({
 });
 
 App.router=router;
-console.dir(App.router);
+
 router.start(App, '#app');
