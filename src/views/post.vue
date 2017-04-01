@@ -22,7 +22,7 @@
                  <h3>简介</h3>
                  <p>{{blogData.description}}</p>
                </div>
-               <p v-html="htmlStr"></p>
+               <div v-html="htmlStr" class="markdown-body"></div>
              </div>
            </div>
         </Row>
@@ -161,7 +161,6 @@ export default {
 .description{
     padding: 16px;
     box-shadow: 0 0 1px rgba(0,0,0,0.3);
-    margin-bottom: 10px;
 }
 .description p{
     padding: 5px;
@@ -183,5 +182,11 @@ export default {
 		max-width: 980px;
 		margin: 0 auto;
 		padding: 45px;
-	}
+}
+.markdown-body img{
+   height: 100%;
+   width: 100%;
+   box-shadow: 0 0 10px rgba(0,0,0,0.3);
+   margin: 10px 0;
+}
 </style>
