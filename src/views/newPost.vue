@@ -288,7 +288,7 @@ export default{
         this.$store.commit('resetCandicateTags');
       },
       checkDB(str){
-        return new Promise(function(resove,reject){
+        return new Promise(function(resolve,reject){
             axios.get('/getTags',{
               params: {
                 tagStr:str,

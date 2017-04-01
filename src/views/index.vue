@@ -742,5 +742,7 @@ body {
 }
 .main-content .post .description{
    padding: 16px 0;
+   text-align: left;
+   text-indent: 2em;
 }
 </style>
