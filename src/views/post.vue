@@ -8,7 +8,7 @@
                 <Icon type="ios-pricetags"></Icon>
                 <a class="category" v-for="item in blogData.category" v-link="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</a>
              </div>
-             <Row type="flex" class="meta">
+             <Row type="flex" justify="end" class="meta">
                 <i-col offset="10" span="5" class="time updateTime" v-if="!!blogData.updateTime"><span>更新于：{{displayTime(blogData.updateTime)}}</span></i-col>
                 <i-col span="5" class="time createTime"><span>创建于：{{displayTime(blogData.writeTime)}}</span></i-col>
                 <i-col span="2" class="watchCount">浏览量: <span class="count">{{blogData.count}}</span></i-col>
