@@ -7,8 +7,7 @@ var MySQLStore = require('express-mysql-session')(session);
 var moment = require('moment');
 
 var options = {
-	host: 'localhost',
-	port: 3306,
+	host: '127.0.0.1',
 	user: 'root',
 	password: 'newpass',
 	database: 'sessionDB',
@@ -17,7 +16,7 @@ var options = {
 
 var app = express();
 
-app.use(express.static('public'));
+app.use(express.static(__dirname+'/public'));
 
 var sessionStore = new MySQLStore(options);
 

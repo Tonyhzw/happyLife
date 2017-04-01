@@ -164,9 +164,6 @@ button.login-button:hover {
                       {
                         username: this.username,
                         password: this.password
-                      },
-                      {
-                        baseURL:'http://127.0.0.1:8081'
                       }
                     ).then((response) => {
                         if(response.data == 'ok'){
@@ -179,7 +176,7 @@ button.login-button:hover {
                           });
                           this.loading=false;
                         }
-                    }).catch(function(error){
+                    }).catch((error)=>{
                         store.commit('updateTips',{
                            data: " 出现其他错误。"
                         });
