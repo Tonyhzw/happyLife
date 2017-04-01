@@ -208,7 +208,6 @@ export default{
               if(data=='ok'){
                 this.displayTips('success','发布成功','该博客已发布成功。');
               }
-              router.replace('#/index');
             }).catch(function (error) {
               console.log(error);
             });
