@@ -2,7 +2,8 @@ const routers = {
     '/index': {
         component(resolve) {
             require(['./views/index.vue'], resolve);
-        }
+        },
+        name:'index'
     },
     '/post/:id':{
         component(resolve){

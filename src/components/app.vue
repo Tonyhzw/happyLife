@@ -3,6 +3,7 @@
     <div class="layout-ceiling">
         <div class="layout-ceiling-main">
           <!-- <a href="#/login" :class="{ active:isActive }">登录</a> -->
+          <a v-link="{name:'index'}" class="index">首页</a>
           <a v-link="{name:'about'}" class="about">关于本站</a>
           <Button  v-if="!islogin" class="login-button" @click="showLoginModal">登陆</Button>
           <a v-if="islogin" v-link="{name:'newPost'}">欢迎您</a>
@@ -19,9 +20,6 @@
     </Modal>
     <div>
         <router-view></router-view>
-    </div>
-    <div class="home" id="back-home">
-       <Icon type="ios-home"></Icon><a href="#/index">返回主页</a>
     </div>
     <div class="layout-copy" id="foot">
         2016-2017 &copy; Tonyhzw
@@ -43,6 +41,11 @@
 }
 .layout-ceiling-main a:hover{
     color: #fff;
+}
+.index{
+    padding-right: 10px;
+    margin-right: 10px;
+    border-right: 1px solid rgba(255,255,255,0.5);
 }
 .about{
     padding-right: 10px;
@@ -109,7 +112,6 @@ button.login-button:hover {
     import Vue from 'vue'
     import Vuex from 'vuex'
     import axios from 'axios'
-    import Cookies from 'js-cookie'
     //注入
     export default {
         store,
@@ -128,32 +130,12 @@ button.login-button:hover {
             }
         },
         ready() {
-            this.isOverloads(); //addEventListener
+
         },
         beforeDestroy() {
 
         },
         methods: {
-            isOverloads(){
-                var footer = document.getElementById('foot');
-                var home = document.getElementById('back-home');
-                home.style.setProperty('display','block');
-                if(footer.getBoundingClientRect().bottom<home.getBoundingClientRect().top ||
-                   footer.getBoundingClientRect().right<home.getBoundingClientRect().left
-                ){
-                  this.removeClass(home,'short');
-                }
-                else home.className +=' short';
-            },
-            removeClass(obj, cls) {
-                if (this.hasClass(obj, cls)) {
-                    var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-                    obj.className = obj.className.replace(reg, ' ');
-                }
-            },
-            hasClass(obj, cls) {
-                return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
-            },
             showLoginModal(){
                 this.modal6 = true;
             },
