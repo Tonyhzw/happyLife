@@ -171,7 +171,7 @@ app.post('/postNew',function(req,res){
 			let factory = require('./server/util.js');
 			for(let i = 0; i < category.length; i++){
 				let uid = factory.uuid(9,10);
-				sql += "insert into tag(tagId,tagName,num) values("+mysql.escape(uid)+","+mysql.escape(category[i])+",1);";
+				sql += "insert into tag(tagId,tagName,num) values("+mysql.escape(uid)+","+mysql.escape(category[i].tagName)+",1);";
 				//更新addTags表
 				sql += "insert into addTags(tagId,blogId) values("+mysql.escape(uid)+","+mysql.escape(blogId)+");";
 			}
@@ -182,6 +182,7 @@ app.post('/postNew',function(req,res){
 			//删除已存在的标签的关联关系
 			for(let i=0; i < delCateArr.length;i++){
 				 sql += "delete from addTags where tagId = "+mysql.escape(delCateArr[i].tagId)+" and blogId= "+mysql.escape(blogId)+";";
+				 sql +=" delete from tag where tagId = "+mysql.escape(delCateArr[i].tagId)+" and (select count(*) from addTags where tagId="+mysql.escape(delCateArr[i].tagId)+")=0;"
 			}
 			//批量操作数据库
 			//console.log(sql);
