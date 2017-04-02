@@ -16,14 +16,6 @@ export default {
     loginSuccess(state){
       state.islogin = true;
     },
-    //更新候选tag
-    getCandicateTags(state,payload){
-      state.candicateArr = payload.data;
-    },
-    //重置tag
-    resetCandicateTags(state){
-      state.candicateArr = [];
-    },
     //获取所有的类别数据
     getCategoryAll(state,payload){
       state.cateAllArr =payload.data;

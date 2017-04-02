@@ -10,7 +10,6 @@ const state = {
       islogin:false,
       blogData:null,
       categoryForSingle:null,
-      candicateArr:[],
       cateAllArr:[]
 };
 

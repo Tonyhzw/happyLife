@@ -5,16 +5,18 @@
         <button class="submit" @click="submitPost">提交</button>
     </div>
     <div class="tags">
-        <Tag v-for="item in alCateArr" closable color="green" @on-close="closeAlTag(item.tagId)">{{item.tagName}}</Tag>
-        <Tag v-for="item in tagArr" closable color="blue" @on-close="closeTag(item)">{{item}}</Tag>
+        <Tag v-for="item1 in alCateArr" closable color="green" @on-close="closeAlTag(item1.tagId)">{{item1.tagName}}</Tag>
+        <Tag v-for="item2 in cateArr" closable color="blue" @on-close="closeTag(item2,cateArr)">{{item2.tagName}}</Tag>
+        <Tag v-for="item3 in alCateArrToAdd" closable color="blue" @on-close="closeTag(item3,alCateArrToAdd)">{{item3.tagName}}</Tag>
     </div>
      <div class="navbar">
         <span>标签</span>
-        <div>
-        <Input class="category" v-model="formItem.category" name="category" placeholder="请输入类别..." @keyup.enter="onEnter" @input="onInput" @blur="onBlur"></Input>
-        <ul>
-          <li v-for="word in candicateArr"><a  @click="chooseTag(word)">{{word.tagName}}</a></li>
-        </ul>
+        <div class="mask" @click="dropUp" v-if="candicateArr.length>0"></div>
+        <div class="search-bar">
+          <Input class="category" v-model="formItem.category" name="category" placeholder="请输入类别..." @keyup.enter="onEnter" @input="onInput" ></Input>
+          <ul>
+            <li v-for="word in candicateArr" @click="chooseTag(word)">{{word.tagName}}</li>
+          </ul>
         </div>
      </div>
      <div class="description">
@@ -70,17 +72,20 @@
 .navbar{
   height: 40px;
   background-color: #ededed;
+  position: relative;
 }
 .navbar span{
   line-height: 40px;
   margin-left: 10px;
 }
-.navbar div{
-  margin-left: 45px;
+.navbar .search-bar{
+  padding-left: 45px;
   margin-top: -40px;
-  position: relative;
+  width: 100%;
+  position: absolute;
+  z-index: 1;
 }
-.navbar div .category{
+.navbar .search-bar .category{
   line-height: 40px;
   width: 100%;
   padding-left: 10px;
@@ -91,8 +96,6 @@
 }
 .navbar ul{
   color: black;
-  position: absolute;
-  z-index: 1;
   width: 100%;
   background-color: white;
 }
@@ -140,13 +143,20 @@
    -webkit-user-select: text;
    user-select: text;
 }
+.mask{
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+}
 .markdown-body {
 		box-sizing: border-box;
 		min-width: 200px;
 		max-width: 980px;
 		margin: 0 auto;
 		padding: 45px;
-	}
+}
 </style>
 <script>
 import axios from 'axios'
@@ -156,6 +166,7 @@ import hljs from 'highlight.js'
 
 export default{
     ready(){
+        //axios.defaults.baseURL = 'http://127.0.0.1:8081';
         autosize(document.querySelectorAll('textarea.content'));
         marked.setOptions({
           highlight: function (code) {
@@ -170,6 +181,7 @@ export default{
           alCateArr:[], /*已存在的标签，一般用于更新博客时，这类标签仅用于展示*/
           alCateArrToAdd:[], /*选择的已存在的标签*/
           delCateArr:[], /*删除已选择的标签*/
+          candicateArr:[],
           formItem: {
                   input:'',
                   category:'',
@@ -181,12 +193,6 @@ export default{
     computed:{
        htmlStr:function(){
           return marked(this.formItem.textarea);
-       },
-       tagArr:function(){
-          return this.cateArr;
-       },
-       candicateArr:function(){
-          return this.$store.state.candicateArr;
        }
     },
     methods:{
@@ -261,7 +267,7 @@ export default{
              var promise = this.checkDB(str);
              promise.then((data)=>{
                  if(data.length==0){
-                     this.cateArr.push(str);
+                     this.cateArr.push({'tagName':str});
                      this.formItem.category="";
                  }else{
                      this.displayTips('error','标签输入失败','输入的标签已存在，请尝试更换新的标签。');
@@ -273,22 +279,21 @@ export default{
       },
       onInput(){
          var str=this.formItem.category.replace(/(^\s*)|(\s*$)/g,"");
-         axios.get('/getTags',{
-           params: {
-             tagStr:str,
-             isLike:true
-           }
-         }).then((response) => {
-             var data = response.data;
-             this.$store.commit('getCandicateTags',{
-                 data:data
-             });
-         }).catch(function(error){
-             console.log(error);
-         });
-      },
-      onBlur(){
-        this.$store.commit('resetCandicateTags');
+         if(str!=''){
+           axios.get('/getTags',{
+             params: {
+               tagStr:str,
+               isLike:true
+             }
+           }).then((response) => {
+               var data = response.data;
+               this.candicateArr = data;
+           }).catch(function(error){
+               console.log(error);
+           });
+         }else{
+           this.candicateArr = [];
+         }
       },
       checkDB(str){
         return new Promise(function(resolve,reject){
@@ -307,32 +312,36 @@ export default{
         });
       },
       chooseTag(item){
-        if(this.findIndex(item.tagName,this.alCateArr)==-1&&this.findIndex(item.tagName,this.CateArr)==-1){
+        if(this.findIndex(item.tagName,this.alCateArr)==-1&&this.findIndex(item,this.cateArr)==-1&&this.findIndex(item.tagName,this.alCateArrToAdd)==-1){
           //查看是否在删除列表中，若不存在时，说明此时需要将其添加到alCateArrToAdd，否则说明本来就有
           let index=this.findIndex(item.tagName,this.delCateArr);
           if(index!=-1){
               this.delCateArr.splice(index,1);
+              this.alCateArr.push(item);
+              this.formItem.category="";
           }else{
               this.alCateArrToAdd.push(item);
+              this.formItem.category="";
           }
         }else{
           this.displayTips('error','标签选择失败','选择的标签已存在，请尝试更换其他的标签。');
         }
+        this.candicateArr = [];
       },
-      findIndex:function(val,arr){
+      findIndex(val,arr){
         var index = -1;
-        for(var i=0; i<arr.length; i++) {
-          if(arr[i] == val) {
+        for(var i=0; i< arr.length; i++) {
+          if(arr[i].tagName == val) {
             index=i;
             break;
           }
         }
         return index;
       },
-      closeTag:function(val){
-        var index=this.findIndex(val);
+      closeTag(item,arr){
+        var index = index=this.findIndex(item.tagName,arr);
         if(index!=-1){
-          this.cateArr.splice(index,1);
+          arr.splice(index,1);
         }
       },
       closeAlTag(id){
@@ -345,7 +354,11 @@ export default{
          }
          this.alCateArr.splice(i,1);
          //并不是删除，而是本文删除
-         console.log("tag delet success.");
+      },
+      dropUp(event){
+        if(event.target.className=='mask'){
+          this.candicateArr = [];
+        }
       },
       fetchData(){
         axios.get('/getBlog',{

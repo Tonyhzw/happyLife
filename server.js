@@ -90,9 +90,9 @@ app.get('/getTags',function(req,res){
     var tagStr = req.query.tagStr;
 		var isLike = req.query.isLike;
     var sql = "";
-		if(!!isLike){
+		if(isLike=='true'){
 		   sql = "select tagId,tagName from tag where tagName like "+mysql.escape("%"+tagStr+"%")+" limit 5;";
-		}else {
+		}else{
 			 sql = "select tagId,tagName from tag where tagName ="+mysql.escape(tagStr)+";";
 		}
 		//console.log(sql);
@@ -184,7 +184,7 @@ app.post('/postNew',function(req,res){
 				 sql += "delete from addTags where tagId = "+mysql.escape(delCateArr[i].tagId)+" and blogId= "+mysql.escape(blogId)+";";
 			}
 			//批量操作数据库
-			console.log(sql);
+			//console.log(sql);
 			query(sql,function(err,vals,fields){
 					//console.log("sql excuted");
 					res.send("ok");
@@ -200,7 +200,7 @@ app.post('/deletePost',function(req,res){
 		 let blogId = req.body.blogId;
 		 let sql = "delete from data where blogId = "+mysql.escape(blogId)+";";
 				 sql += "delete from addTags where blogId = "+mysql.escape(blogId)+";";
-		 console.log(sql);
+		 //console.log(sql);
 		 query(sql,function(err,vals,fields){
 				 console.log("sql excuted");
 				 res.send("ok");
@@ -214,11 +214,11 @@ app.post('/deleteTag',function(req,res){
 	 var promise = checkAuth(req,res);
 	 promise.then(()=>{
 		 let tagId = req.body.tagId;
-		 console.log(tagId);
+		 //console.log(tagId);
 		 let sql = "delete from tag where tagId = "+mysql.escape(tagId)+";";
-		 console.log(sql);
+		 //console.log(sql);
 		 query(sql,function(err,vals,fields){
-				 //console.log("sql excuted");
+				 console.log("sql excuted");
 				 res.send("ok");
 		 });
 	 }).catch(()=>{
