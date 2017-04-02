@@ -47,7 +47,7 @@ app.all('*', function(req, res, next) {
 app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;
     //连接数据库
-    query("select * from data;",function(err,vals,fields) {
+    query("select * from data order by updateTime desc,writeTime desc;",function(err,vals,fields) {
       res.send(vals);
     });
 });
@@ -69,7 +69,7 @@ app.get('/getCategory',function(req,res){
     var categoryId = req.query.categoryId;
 		var sql = "";
 		if(!!categoryId){
-    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+";";
+    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+" order by updateTime desc,writeTime desc;";
 		}else{
 			sql = "select * from tag;";
 		}

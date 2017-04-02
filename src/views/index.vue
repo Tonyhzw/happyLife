@@ -7,18 +7,21 @@
                   <Icon type="ios-pricetag"></Icon><span class="category">{{getCategoryName}}</span>
                </div>
                <div class="post-content">
-                 <div class="post" v-for="item in blogData" key="item.blogId">
-                 <h2 class="title left">
+                 <div class="post" v-for="item in blogData">
+                 <h2 class="title">
                    <a v-link="{ name : 'post', params : {id:item.blogId} }">{{item.title}}</a>
                  </h2>
-                 <div class="meta left">
-                    <p>
-                      <span class="time">发表时间: {{displayTime(item.writeTime)}}</span>
-                      <span class="category">归类至：
-                        <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
-                      </span>
-                      <span class="count">阅读量：<span>{{item.count}}</span></span>
-                    </p>
+                 <div class="meta">
+                      <div class="time-series">
+                        <span class="time updateTime" v-if="!!item.updateTime">更新时间: {{displayTime(item.updateTime)}}</span>
+                        <span class="time createTime">发表时间: {{displayTime(item.writeTime)}}</span>
+                      </div>
+                      <div class="options">
+                        <span class="category">归类至：
+                          <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
+                        </span>
+                        <span class="count">阅读量：<span>{{item.count}}</span></span>
+                      </div>
                  </div>
                  <div class="description left">
                    <p>{{displayDescription(item.description)}}</p>

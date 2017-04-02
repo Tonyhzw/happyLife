@@ -19,7 +19,8 @@ const store = new Vuex.Store({
      mutations:mutations,
      actions:actions,
      plugins: [
-      createPersistedState()
+      /*有效期与cookie的session有效期一致*/
+      createPersistedState({ storage: window.sessionStorage })
     ]
 });
 
