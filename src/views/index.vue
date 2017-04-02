@@ -2,7 +2,34 @@
 <div id="app">
     <div class="layout">
         <Row type="flex">
-            <i-col span="6" class="layout-menu-left">
+            <i-col span="16" class="main-content">
+               <div v-if="!!categoryId" class="category-title">
+                  <Icon type="ios-pricetag"></Icon><span class="category">{{getCategoryName}}</span>
+               </div>
+               <div class="post-content">
+                 <div class="post" v-for="item in blogData">
+                 <h2 class="title">
+                   <a v-link="{ name : 'post', params : {id:item.blogId} }">{{item.title}}</a>
+                 </h2>
+                 <div class="meta">
+                      <div class="time-series">
+                        <span class="time updateTime" v-if="!!item.updateTime">更新时间: {{displayTime(item.updateTime)}}</span>
+                        <span class="time createTime">发表时间: {{displayTime(item.writeTime)}}</span>
+                      </div>
+                      <div class="options">
+                        <span class="category">归类至：
+                          <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
+                        </span>
+                        <span class="count">阅读量：<span>{{item.count}}</span></span>
+                      </div>
+                 </div>
+                 <div class="description left">
+                   <p>{{displayDescription(item.description)}}</p>
+                 </div>
+               </div>
+               </div>
+            </i-col>
+            <i-col span="6" offset="2" class="layout-menu-left">
               <Row class="row category">
                 <h2 class="title"><Icon type="ios-pricetags"></Icon><span class="content">文章分类</span></h2>
                 <div class="content">
@@ -23,30 +50,6 @@
                     <a href="https://toutiao.io/subjects/31058"><img src="./../../public/img/128.png" alt="开发者头条" width="32" height="32"/></a>
                 </div>
               </Row>
-            </i-col>
-            <i-col span="16" offset="2" class="main-content">
-               <div v-if="!!categoryId" class="category-title">
-                  <Icon type="ios-pricetag"></Icon><span class="category">{{getCategoryName}}</span>
-               </div>
-               <div class="post-content">
-                 <div class="post" v-for="item in blogData" key="item.blogId">
-                 <h2 class="title left">
-                   <a v-link="{ name : 'post', params : {id:item.blogId} }">{{item.title}}</a>
-                 </h2>
-                 <div class="meta left">
-                    <p>
-                      <span class="time">发表时间: {{displayTime(item.writeTime)}}</span>
-                      <span class="category">归类至：
-                        <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
-                      </span>
-                      <span class="count">阅读量：<span>{{item.count}}</span></span>
-                    </p>
-                 </div>
-                 <div class="description left">
-                   <p>{{displayDescription(item.description)}}</p>
-                 </div>
-               </div>
-               </div>
             </i-col>
         </Row>
     </div>
@@ -716,6 +719,7 @@ body {
 }
 .main-content .post{
    box-shadow: 0 0 1px rgba(0,0,0,0.3);
+   margin-bottom: 10px;
 }
 .main-content .post .left{
    display: flex;
@@ -731,11 +735,13 @@ body {
    color:rgba(0,0,0,0.7);
 }
 .main-content .post .meta{
-   margin-top: 16px;
-   padding-bottom: 10px;
+   margin-top: 5px;
    line-height: 18px;
    font-size: 12px;
    border-bottom: 1px solid rgba(0,0,0,0.3);
+}
+.main-content .post .meta span{
+   margin-right: 10px;
 }
 .main-content .post .meta a{
    padding-right: 10px;

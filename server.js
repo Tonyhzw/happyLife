@@ -47,7 +47,7 @@ app.all('*', function(req, res, next) {
 app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;
     //连接数据库
-    query("select * from data;",function(err,vals,fields) {
+    query("select * from data order by updateTime desc,writeTime desc;",function(err,vals,fields) {
       res.send(vals);
     });
 });
@@ -69,7 +69,7 @@ app.get('/getCategory',function(req,res){
     var categoryId = req.query.categoryId;
 		var sql = "";
 		if(!!categoryId){
-    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+";";
+    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+" order by updateTime desc,writeTime desc;";
 		}else{
 			sql = "select * from tag;";
 		}
@@ -88,7 +88,14 @@ app.get('/getCategoryForBlog',function(req,res){
 //查询输入对应的已存在的tags
 app.get('/getTags',function(req,res){
     var tagStr = req.query.tagStr;
-    var sql = "select tagId,tagName from tag where tagName like '%"+mysql.escape(tagStr)+"%' limit 5;";
+		var isLike = req.query.isLike;
+    var sql = "";
+		if(!!isLike){
+		   sql = "select tagId,tagName from tag where tagName like "+mysql.escape("%"+tagStr+"%")+" limit 5;";
+		}else {
+			 sql = "select tagId,tagName from tag where tagName ="+mysql.escape(tagStr)+";";
+		}
+		//console.log(sql);
     query(sql,function(err,vals,fields) {
       res.send(vals);
     });
@@ -100,7 +107,7 @@ app.post('/login',function(req,res){
     var password = req.body.password;
     //过滤
     var sql = "select * from user where username = "+ mysql.escape(username)+" and password = "+mysql.escape(password)+" ;";
-		console.log(sql);
+		//console.log(sql);
 		query(sql,function(err,vals,fields) {
       if(vals.length == 1){
         //登录成功
