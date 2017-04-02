@@ -224,6 +224,7 @@ export default{
           return false;
         }else if(this.cateArr.length==0 && this.alCateArr.length==0){
           this.displayTips('error',title, "发布的博客标签不能为空");
+          return false;
         }
         return true;
       },
@@ -261,9 +262,11 @@ export default{
                  if(data.length==0){
                      this.cateArr.push(str);
                      this.formItem.category="";
+                 }else{
+                     this.displayTips('error','标签输入失败','输入的标签已存在，请尝试更换新的标签。');
                  }
              }).catch(()=>{
-                 console.log("tags already exists");
+                 console.log("error exists");
              });
          }
       },
@@ -296,7 +299,7 @@ export default{
             }).then((response) => {
                 var data = response.data;
                 resolve(data);
-            }).catch(function(error){
+            }).catch((error)=>{
                 console.log(error);
                 reject();
             });
