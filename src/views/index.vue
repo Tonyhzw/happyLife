@@ -63,6 +63,7 @@ import moment from 'moment';
 
 export default {
     ready() {
+        //axios.defaults.baseURL = 'http://127.0.0.1:8081';
         //取回所有的分类信息
         this.getCategoryAll();
         //按条件取回其他数据
