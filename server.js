@@ -177,14 +177,14 @@ app.post('/postNew',function(req,res){
 			}
 			//更新已存在标签的关联关系
 			for(let i = 0; i < alCateArr.length; i++){
-				 sql += "insert into addTags(tagId,tagName) values("+mysql.escape(alCateArr[i].tagId)+","+mysql.escape(alCateArr[i].tagName)+")";
+				 sql += "insert into addTags(tagId,tagName) values("+mysql.escape(alCateArr[i].tagId)+","+mysql.escape(alCateArr[i].tagName)+");";
 			}
 			//删除已存在的标签的关联关系
 			for(let i=0; i < delCateArr.length;i++){
 				 sql += "delete from addTags where tagId = "+mysql.escape(delCateArr[i].tagId)+" and blogId= "+mysql.escape(blogId)+";";
 			}
 			//批量操作数据库
-			//console.log(sql);
+			console.log(sql);
 			query(sql,function(err,vals,fields){
 					//console.log("sql excuted");
 					res.send("ok");

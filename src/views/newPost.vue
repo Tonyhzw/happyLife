@@ -166,9 +166,10 @@ export default{
     },
     data(){
         return{
-          cateArr:[],
-          alCateArr:[],
-          delCateArr:[],
+          cateArr:[],/*新添加的标签*/
+          alCateArr:[], /*已存在的标签，一般用于更新博客时，这类标签仅用于展示*/
+          alCateArrToAdd:[], /*选择的已存在的标签*/
+          delCateArr:[], /*删除已选择的标签*/
           formItem: {
                   input:'',
                   category:'',
@@ -197,7 +198,7 @@ export default{
             {
               title: this.formItem.input,
               category: this.cateArr,
-              alCateArr: this.alCateArr,
+              alCateArr: this.alCateArrToAdd,
               delCateArr: this.delCateArr,
               content: this.formItem.textarea,
               description: this.formItem.description,
@@ -222,7 +223,7 @@ export default{
         }else if(!this.formItem.textarea) {
           this.displayTips('error', title, "发布的博客内容不能为空");
           return false;
-        }else if(this.cateArr.length==0 && this.alCateArr.length==0){
+        }else if(this.cateArr.length==0 && this.alCateArr.length==0 && this.alCateArrToAdd.length==0){
           this.displayTips('error',title, "发布的博客标签不能为空");
           return false;
         }
@@ -306,10 +307,16 @@ export default{
         });
       },
       chooseTag(item){
-        if(this.findIndex(item,this.alCateArr)!=-1)
-          this.alCateArr.push(item);
-        else{
-          this.displayTips('error','标签输入失败','输入的标签已存在，请尝试更换新的标签。');
+        if(this.findIndex(item.tagName,this.alCateArr)==-1&&this.findIndex(item.tagName,this.CateArr)==-1){
+          //查看是否在删除列表中，若不存在时，说明此时需要将其添加到alCateArrToAdd，否则说明本来就有
+          let index=this.findIndex(item.tagName,this.delCateArr);
+          if(index!=-1){
+              this.delCateArr.splice(index,1);
+          }else{
+              this.alCateArrToAdd.push(item);
+          }
+        }else{
+          this.displayTips('error','标签选择失败','选择的标签已存在，请尝试更换其他的标签。');
         }
       },
       findIndex:function(val,arr){
@@ -329,6 +336,7 @@ export default{
         }
       },
       closeAlTag(id){
+         var i=0;
          for(i=0;i<this.alCateArr.length;i++){
            if(this.alCateArr[i].tagId == id){
               this.delCateArr.push(this.alCateArr[i]);

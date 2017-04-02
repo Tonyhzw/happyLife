@@ -2,7 +2,7 @@
 <div id="app">
     <div class="layout">
         <Row type="flex">
-            <i-col span="16" class="main-content">
+            <i-col span="18" class="main-content">
                <div v-if="!!categoryId" class="category-title">
                   <Icon type="ios-pricetag"></Icon><span class="category">{{getCategoryName}}</span>
                </div>
@@ -29,7 +29,7 @@
                </div>
                </div>
             </i-col>
-            <i-col span="6" offset="2" class="layout-menu-left">
+            <i-col span="6" class="layout-menu-left">
               <Row class="row category">
                 <h2 class="title"><Icon type="ios-pricetags"></Icon><span class="content">文章分类</span></h2>
                 <div class="content">
@@ -668,7 +668,9 @@ body {
 .layout {
     position: relative;
 }
-
+.layout-menu-left{
+    padding-left: 10px;
+}
 .layout-menu-left .row{
     margin-top:10px;
     margin-left: 1px;
@@ -689,7 +691,7 @@ body {
     font-size: 14px;
 }
 .layout-menu-left .row > .content li{
-    width: 50%;
+    margin-right: 10%;
     display: inline-block;
 }
 .layout-menu-left .row > .content li:hover{
@@ -721,11 +723,6 @@ body {
    box-shadow: 0 0 1px rgba(0,0,0,0.3);
    margin-bottom: 10px;
 }
-.main-content .post .left{
-   display: flex;
-   margin-left: 16px;
-   margin-right: 16px;
-}
 .main-content .post .title{
    padding-top:9px;
    font-weight: 700;
@@ -735,7 +732,7 @@ body {
    color:rgba(0,0,0,0.7);
 }
 .main-content .post .meta{
-   margin-top: 5px;
+   margin: 5px 16px;
    line-height: 18px;
    font-size: 12px;
    border-bottom: 1px solid rgba(0,0,0,0.3);
