@@ -177,7 +177,7 @@ app.post('/postNew',function(req,res){
 			}
 			//更新已存在标签的关联关系
 			for(let i = 0; i < alCateArr.length; i++){
-				 sql += "insert into addTags(tagId,tagName) values("+mysql.escape(alCateArr[i].tagId)+","+mysql.escape(alCateArr[i].tagName)+");";
+				 sql += "insert into addTags(tagId,blogId) values("+mysql.escape(alCateArr[i].tagId)+","+mysql.escape(blogId)+");";
 			}
 			//删除已存在的标签的关联关系
 			for(let i=0; i < delCateArr.length;i++){
