@@ -35,14 +35,14 @@ app.use(bodyParser.json());
 app.use(cookieParser());//若需要使用签名，需要指定一个secret,字符串,否者会报错
 
 //设置跨域访问
-app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1');
-    //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
-    next();
-});
+// app.all('*', function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+//     res.header("X-Powered-By",' 3.2.1');
+//     //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
+//     next();
+// });
 // 查询所有博客数据
 app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;
@@ -111,11 +111,11 @@ app.post('/login',function(req,res){
 		query(sql,function(err,vals,fields) {
       if(vals.length == 1){
         //登录成功
-        //res.cookie('mycookie', '1234567890', { domain:'localhost',secure:false, maxAage:120000, httpOnly: true });
+        //res.cookie('mycookie', '1234567890', { domain:'localhost',secure:false, maxAge:120000, httpOnly: true });
         //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly');
         sessionStore.set(req.session.id, req.session, function(err){
            //res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
-					 res.append('Set-Cookie', 'sid='+req.session.id+'; maxAage:120000; Path=/; HttpOnly');
+					 res.append('Set-Cookie', 'sid='+req.session.id+'; maxAge:120000; Path=/; HttpOnly');
            //console.log("---- mysql save");
            res.send("ok");
          });

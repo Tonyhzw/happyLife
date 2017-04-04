@@ -3,6 +3,8 @@ import Vuex from 'vuex';
 import mutations from './mutations';
 import actions from './actions';
 import createPersistedState from 'vuex-persistedstate'
+import * as Cookies from 'js-cookie'
+
 
 Vue.use(Vuex);
 
@@ -19,7 +21,11 @@ const store = new Vuex.Store({
      actions:actions,
      plugins: [
       /*有效期与cookie的session有效期一致*/
-      createPersistedState({ storage: window.sessionStorage })
+      //createPersistedState({ storage: window.sessionStorage })
+      createPersistedState({
+        getState: (key) => Cookies.getJSON(key),
+        setState: (key, state) => Cookies.set(key, state, { maxAge: 120000, secure: true })
+      })
     ]
 });
 
