@@ -58,7 +58,7 @@ app.get('/getBlog',function(req,res){
     var sql = "select * from data where blogId = "+ mysql.escape(blogId)+";";
     query(sql,function(err,vals,fields) {
 			let count = vals[0].count+1;
-			sql = "update data set count ="+mysql.escape(count)+";";
+			sql = "update data set count ="+mysql.escape(count)+" where blogId = "+ mysql.escape(blogId)+";";
 			//console.log(sql);
 			query(sql,function(err,vals,fields){});
       res.send(vals);
