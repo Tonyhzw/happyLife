@@ -24,7 +24,7 @@ const store = new Vuex.Store({
       //createPersistedState({ storage: window.sessionStorage })
       createPersistedState({
         getState: (key) => Cookies.getJSON(key),
-        setState: (key, state) => Cookies.set(key, state, { maxAge: 120000, secure: true })
+        setState: (key, state) => Cookies.set(key, state, { maxAge: 120000})
       })
     ]
 });
