@@ -165,8 +165,8 @@ import marked from 'marked'
 import hljs from 'highlight.js'
 
 export default{
-    ready(){
-        //axios.defaults.baseURL = 'http://127.0.0.1:8081';
+    mounted(){
+        axios.defaults.baseURL = 'http://127.0.0.1:8081';
         autosize(document.querySelectorAll('textarea.content'));
         marked.setOptions({
           highlight: function (code) {

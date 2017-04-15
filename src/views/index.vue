@@ -9,7 +9,7 @@
                <div class="post-content">
                  <div class="post" v-for="item in blogData">
                  <h2 class="title">
-                   <a v-link="{ name : 'post', params : {id:item.blogId} }">{{item.title}}</a>
+                     <router-link :to="{ name : 'post', params : {id:item.blogId}}">{{item.title}}</router-link>
                  </h2>
                  <div class="meta">
                       <div class="time-series">
@@ -18,7 +18,7 @@
                       </div>
                       <div class="options">
                         <span class="category">归类至：
-                          <a v-for="list in item.category" v-link="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</a>
+                          <router-link v-for="list in item.category" :to="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</router-link>
                         </span>
                         <span class="count">阅读量：<span>{{item.count}}</span></span>
                       </div>
@@ -34,7 +34,9 @@
                 <h2 class="title"><Icon type="ios-pricetags"></Icon><span class="content">文章分类</span></h2>
                 <div class="content">
                     <ul>
-                      <li v-for="cateAll in cateAllArr"><a v-link="{ name:'category',params:{category:cateAll.tagId}}">{{cateAll.tagName}}</a></li>
+                      <li v-for="cateAll in cateAllArr">
+                        <router-link :to="{ name:'category',params:{category:cateAll.tagId}}">{{cateAll.tagName}}</router-link>
+                      </li>
                     </ul>
                 </div>
               </Row>
@@ -62,8 +64,8 @@ import axios from 'axios';
 import moment from 'moment';
 
 export default {
-    ready() {
-        //axios.defaults.baseURL = 'http://127.0.0.1:8081';
+    mounted() {
+        axios.defaults.baseURL = 'http://127.0.0.1:8081';
         //取回所有的分类信息
         this.getCategoryAll();
         //按条件取回其他数据

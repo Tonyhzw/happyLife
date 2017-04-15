@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <div id="app">
     <div class="layout-ceiling">
         <div class="layout-ceiling-main">
-          <!-- <a href="#/login" :class="{ active:isActive }">登录</a> -->
-          <a v-link="{name:'index'}" class="index">首页</a>
-          <a v-link="{name:'about'}" class="about">关于本站</a>
+          <router-link :to="{name:'index'}" class="index">首页</router-link>
+          <router-link :to="{name:'about'}" class="about">关于本站</router-link>
           <Button  v-if="!islogin" class="login-button" @click="showLoginModal">登陆</Button>
-          <a v-if="islogin" v-link="{name:'newPost'}">欢迎您</a>
+          <router-link v-if="islogin" :to="{name:'newPost'}">欢迎您</router-link>
         </div>
     </div>
     <Modal
@@ -108,13 +107,13 @@ button.login-button:hover {
 }
 </style>
 <script>
-    import store from './../store/store.js';
     import Vue from 'vue'
     import Vuex from 'vuex'
     import axios from 'axios'
+    import * as Cookies from 'js-cookie'
+
     //注入
     export default {
-        store,
         data() {
             return {
                   modal6: false,
@@ -126,11 +125,14 @@ button.login-button:hover {
         },
         computed:{
             islogin: function(){
-              return store.state.islogin;
+              return this.$store.state.islogin;
             }
         },
-        ready() {
-
+        mounted() {
+            var str = Cookies.get('sid');
+            if(str){
+              this.$store.commit('loginSuccess');
+            }
         },
         beforeDestroy() {
 
@@ -151,9 +153,11 @@ button.login-button:hover {
                         password: this.password
                       }
                     ).then((response) => {
-                        if(response.data == 'ok'){
-                          store.commit('loginSuccess');
+                         console.dir(response.data);
+                        if(response.data.status == 'ok'){
+                          this.$store.commit('loginSuccess');
                           // 登陆成功，关闭登陆框
+                          Cookies.set('sid',response.data.data);
                           this.modal6=false;
                         }else{
                           this.loginTips="用户名与密码不正确，请完成输入。";

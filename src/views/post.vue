@@ -6,13 +6,13 @@
              <h2 class="title">{{blogData.title}}</h2>
              <div class="info">
                 <Icon type="ios-pricetags"></Icon>
-                <a class="category" v-for="item in blogData.category" v-link="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</a>
+                <router-link lass="category" v-for="item in blogData.category" :to="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</router-link>
              </div>
              <Row type="flex" justify="end" class="meta">
                 <i-col offset="10" span="5" class="time updateTime" v-if="!!blogData.updateTime"><span>更新于：{{displayTime(blogData.updateTime)}}</span></i-col>
                 <i-col span="5" class="time createTime"><span>创建于：{{displayTime(blogData.writeTime)}}</span></i-col>
                 <i-col span="2" class="watchCount">浏览量: <span class="count">{{blogData.count}}</span></i-col>
-                <a span="1" class="update active" @click="update" v-if="islogin" v-link="{name:'updatePost',params:{id:blogData.blogId}}">编辑</a>
+                <router-link span="1" lass="update active" v-if="islogin" :to="{name:'updatePost',params:{id:blogData.blogId}}">编辑</router-link>
                 <span class="update" span="1" v-else>编辑</span>
                 <a span="1" class="delete active" @click="instance('警告')" v-if="islogin">删除</a>
                 <span class="delete" span="1" v-else>删除</span>
@@ -36,8 +36,8 @@ import marked from 'marked'
 import hljs from 'highlight.js'
 
 export default {
-    ready(){
-       //axios.defaults.baseURL = 'http://127.0.0.1:8081';
+    mounted(){
+       axios.defaults.baseURL = 'http://127.0.0.1:8081';
        this.fetchData();
        marked.setOptions({
          highlight: function (code) {

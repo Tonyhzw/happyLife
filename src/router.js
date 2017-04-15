@@ -1,39 +1,51 @@
-const routers = {
-    '/index': {
-        component(resolve) {
-            require(['./views/index.vue'], resolve);
-        },
+import VueRouter from 'vue-router';
+import Index from './views/index.vue'
+import Post from './views/post.vue'
+import NewPost from './views/newPost.vue'
+import About from './views/about.vue'
+
+const routers = [
+     {
+        path:'/index',
+        component:Index,
         name:'index'
     },
-    '/post/:id':{
-        component(resolve){
-            require(['./views/post.vue'],resolve);
-        },
+    {
+        path:'/post/:id',
+        component:Post,
         name:'post'
     },
-    '/about':{
-       component(resolve){
-            require(['./views/about.vue'],resolve);
-       },
+    {
+       path:'/about',
+       component:About,
        name:'about'
     },
-    '/category/:category':{
-        component(resolve){
-            require(['./views/index.vue'],resolve);
-        },
+    {
+        path:'/category/:category',
+        component:Index,
         name:'category'
     },
-    '/newPost':{
-       component(resolve){
-         require(['./views/newPost.vue'],resolve);
-       },
+    {
+       path:'/newPost',
+       component:NewPost,
        name:'newPost'
     },
-    '/updatePost/:id':{
-      component(resolve){
-        require(['./views/newPost.vue'],resolve);
-      },
+    {
+      path:'/updatePost/:id',
+      component:NewPost,
       name:'updatePost'
+    },
+    {
+      path: '*',
+      redirect: { name: 'index' }
     }
-};
-export default routers;
+];
+//路由配置
+var router = new VueRouter({
+    // 是否开启History模式的路由, 如果生产环境的服务端没有进行相关配置,请慎用
+    history: false,
+    routes: routers
+});
+
+
+export default router;

@@ -115,9 +115,9 @@ app.post('/login',function(req,res){
         //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly');
         sessionStore.set(req.session.id, req.session, function(err){
            //res.cookie('sid',req.session.id,{domain:'localhost',secure:false, httpOnly: false});
-					 res.append('Set-Cookie', 'sid='+req.session.id+'; maxAge:120000; Path=/; HttpOnly');
+					 //res.append('Set-Cookie', 'sid='+req.session.id+'; maxAge:120000; Path=/; HttpOnly');
            //console.log("---- mysql save");
-           res.send("ok");
+           res.send({"status":"ok","data":req.session.id});
          });
         // req.session.save(function(err) {
         //   // session saved
@@ -126,7 +126,7 @@ app.post('/login',function(req,res){
         // });
       }else{
         //登陆失败
-        res.send("false");
+        res.send({"status":"false"});
       }
 
     });
