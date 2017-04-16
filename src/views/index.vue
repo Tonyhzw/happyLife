@@ -7,7 +7,7 @@
                   <Icon type="ios-pricetag"></Icon><span class="category">{{getCategoryName}}</span>
                </div>
                <div class="post-content">
-                 <div class="post" v-for="item in blogData">
+                 <div class="post" v-for="item in blogData" :key="item.blogId">
                  <h2 class="title">
                      <router-link :to="{ name : 'post', params : {id:item.blogId}}">{{item.title}}</router-link>
                  </h2>
@@ -18,7 +18,7 @@
                       </div>
                       <div class="options">
                         <span class="category">归类至：
-                          <router-link v-for="list in item.category" :to="{ name:'category',params:{category:list.tagId}}">{{list.tagName}}</router-link>
+                          <router-link v-for="list in item.category" :to="{ name:'category',params:{category:list.tagId}}" :key="list.tagId">{{list.tagName}}</router-link>
                         </span>
                         <span class="count">阅读量：<span>{{item.count}}</span></span>
                       </div>
@@ -34,7 +34,7 @@
                 <h2 class="title"><Icon type="ios-pricetags"></Icon><span class="content">文章分类</span></h2>
                 <div class="content">
                     <ul>
-                      <li v-for="cateAll in cateAllArr">
+                      <li v-for="cateAll in cateAllArr" :key="cateAll.tagId">
                         <router-link :to="{ name:'category',params:{category:cateAll.tagId}}">{{cateAll.tagName}}</router-link>
                       </li>
                     </ul>

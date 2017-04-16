@@ -35,14 +35,14 @@ app.use(bodyParser.json());
 app.use(cookieParser());//若需要使用签名，需要指定一个secret,字符串,否者会报错
 
 //设置跨域访问
-// app.all('*', function(req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-//     res.header("X-Powered-By",' 3.2.1');
-//     //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
-//     next();
-// });
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1');
+    //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
+    next();
+});
 // 查询所有博客数据
 app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;

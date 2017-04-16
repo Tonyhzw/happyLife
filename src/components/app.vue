@@ -4,17 +4,17 @@
         <div class="layout-ceiling-main">
           <router-link :to="{name:'index'}" class="index">首页</router-link>
           <router-link :to="{name:'about'}" class="about">关于本站</router-link>
-          <Button  v-if="!islogin" class="login-button" @click="showLoginModal">登陆</Button>
+          <Button  v-if="!islogin" class="login-button" @click="modal6 = true">登陆</Button>
           <router-link v-if="islogin" :to="{name:'newPost'}">欢迎您</router-link>
         </div>
     </div>
     <Modal
-        :visible.sync="modal6"
+        v-model="modal6"
         title="请登陆后台系统"
         :loading="loading"
         @on-ok="login">
-        <i-input :value.sync="username" name="username" placeholder="用户名" class=" username"></i-input>
-        <i-input :value.sync="password" name="password" placeholder="密码" class=" password" type="password"></i-input>
+        <i-input v-model="username" name="username" placeholder="用户名" class=" username"></i-input>
+        <i-input v-model="password" name="password" placeholder="密码" class=" password" type="password"></i-input>
         <p class="tips">{{loginTips}}</p>
     </Modal>
     <div>
@@ -117,8 +117,8 @@ button.login-button:hover {
         data() {
             return {
                   modal6: false,
-                  loading: true,
                   loginTips:'',
+                  loading:true,
                   username: '',
                   password: ''
             };
@@ -130,22 +130,23 @@ button.login-button:hover {
         },
         mounted() {
             var str = Cookies.get('sid');
-            if(str){
+            console.log(str);
+            if(!!str){
               this.$store.commit('loginSuccess');
             }
         },
-        beforeDestroy() {
-
-        },
         methods: {
-            showLoginModal(){
-                this.modal6 = true;
+            changeLoading() {
+              this.loading = false;
+              this.$nextTick(() => {
+                this.loading = true;
+              });
             },
             login (e) {
                 //登陆验证
                 if(!this.username||!this.password){
                     this.loginTips="输入不正确，请完成输入。";
-                    this.loading=false;
+                    return this.changeLoading();
                 }else{
                     axios.post('/login',
                       {
@@ -153,19 +154,19 @@ button.login-button:hover {
                         password: this.password
                       }
                     ).then((response) => {
-                         console.dir(response.data);
                         if(response.data.status == 'ok'){
                           this.$store.commit('loginSuccess');
                           // 登陆成功，关闭登陆框
                           Cookies.set('sid',response.data.data);
+                          this.changeLoading();
                           this.modal6=false;
                         }else{
                           this.loginTips="用户名与密码不正确，请完成输入。";
-                          this.loading=false;
+                          return this.changeLoading();
                         }
                     }).catch((error)=>{
                         this.loginTips="出现其他错误。";
-                        this.loading=false;
+                        return this.changeLoading();
                     });
               }
 
