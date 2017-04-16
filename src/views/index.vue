@@ -81,7 +81,8 @@ export default {
     },
     watch:{
       categoryId:function(){
-         this.getCategory();//类型变化时自动更新
+         if(!!this.categoryId) this.getCategory();//类型变化时自动更新
+         else this.getAll();
       }
     },
     computed:{
