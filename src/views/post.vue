@@ -6,7 +6,7 @@
              <h2 class="title">{{blogData.title}}</h2>
              <div class="info">
                 <Icon type="ios-pricetags"></Icon>
-                <router-link lass="category" v-for="item in blogData.category" :to="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</router-link>
+                <router-link lass="category" v-for="item in blogData.category" :key="item.tagId" :to="{ name : 'category', params : {category:item.tagId} }">{{item.tagName}}</router-link>
              </div>
              <Row type="flex" justify="end" class="meta">
                 <i-col offset="10" span="5" class="time updateTime" v-if="!!blogData.updateTime"><span>更新于：{{displayTime(blogData.updateTime)}}</span></i-col>

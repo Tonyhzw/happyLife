@@ -17,7 +17,7 @@
         <i-input v-model="password" name="password" placeholder="密码" class=" password" type="password"></i-input>
         <p class="tips">{{loginTips}}</p>
     </Modal>
-    <div>
+    <div class="web-content">
         <router-view></router-view>
     </div>
     <div class="layout-copy" id="foot">
@@ -27,9 +27,13 @@
 </template>
 <style>
 .layout-ceiling{
+    position: fixed;
+    top:0px;
+    z-index: 20;
     background: #0091ea;
     padding: 10px 0;
     overflow: hidden;
+    width: 100%;
 }
 .layout-ceiling-main{
     float: right;
@@ -86,6 +90,9 @@
     background-color: #0091ea;
     margin-top: 20px;
 }
+.web-content{
+    margin-top:46px;
+}
 .username,.password{
     margin-bottom:10px;
 }
@@ -129,8 +136,8 @@ button.login-button:hover {
             }
         },
         mounted() {
+            axios.defaults.baseURL = 'http://127.0.0.1:8081';
             var str = Cookies.get('sid');
-            console.log(str);
             if(!!str){
               this.$store.commit('loginSuccess');
             }
