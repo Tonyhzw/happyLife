@@ -10,9 +10,6 @@ Vue.use(Vuex);
 
 const state = {
       islogin:false,
-      blogData:null,
-      categoryForSingle:null,
-      cateAllArr:[]
 };
 
 const store = new Vuex.Store({

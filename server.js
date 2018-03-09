@@ -15,6 +15,8 @@ var options = {
 	database: 'sessionDB',
   port: 3306
 };;
+//每页数据条数
+var count = 5;
 
 var app = express();
 
@@ -43,11 +45,26 @@ app.all('*', function(req, res, next) {
     //判断是否有cookie，这里如果存在cookie但是不存在session，利用cookie中的sid更新session
     next();
 });
+// 查询页数信息
+app.get('/getPageCount',function(req,res){
+	  var tagId = req.query.id;
+		var sql = "";
+		if(tagId){
+			sql = "select count(*) from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(tagId)+" ;"
+		}else{
+      sql = "select count(*) from data;";
+		}
+		query(sql,function(err,vals,fields) {
+			res.send(vals);
+    });
+});
 // 查询所有博客数据
 app.get('/getAll',function(req,res){
     var pageNum = req.query.pageNum;
+		//(startCount,startCount+5+1]
+		var startCount = count*pageNum-3;
     //连接数据库
-    query("select * from data order by updateTime desc,writeTime desc;",function(err,vals,fields) {
+    query("select * from data order by updateTime desc,writeTime desc limit "+ startCount+" , "+ count+";",function(err,vals,fields) {
       res.send(vals);
     });
 });
@@ -67,9 +84,13 @@ app.get('/getBlog',function(req,res){
 //查询对应类别标签的所有博客数据
 app.get('/getCategory',function(req,res){
     var categoryId = req.query.categoryId;
+		var pageNum = req.query.pageNum;
+		//(startCount,startCount+5+1]
+		var startCount = count*pageNum-3;
 		var sql = "";
 		if(!!categoryId){
-    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+" order by updateTime desc,writeTime desc;";
+    	sql = "select data.blogId,data.title,data.content,data.writeTime,data.updateTime,data.description,data.count from data join addTags on data.blogId = addTags.blogId and addTags.tagId = "+mysql.escape(categoryId)+" order by updateTime desc,writeTime desc";
+			sql +=" limit "+startCount+" ,"+count+" ;";
 		}else{
 			sql = "select * from tag;";
 		}

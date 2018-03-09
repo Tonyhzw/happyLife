@@ -47,17 +47,15 @@ export default {
     },
     data(){
       return {
+        blogData:null
       }
     },
     computed:{
-       blogData:function(){
-          if(this.$store.state.blogData) return this.$store.state.blogData[0];
-       },
        islogin:function(){
           return this.$store.state.islogin;
        },
        htmlStr:function(){
-         if(this.$store.state.blogData) return marked(this.$store.state.blogData[0].content);
+         if(this.blogData) return marked(this.blogData.content);
        }
     },
     components:{
@@ -71,13 +69,9 @@ export default {
           }
         }).then((response)=>{
           var data = response.data;
-          data.forEach((val)=>{
-              this.getCategoryForBlog(this.$route.params.id);
-              val.category=[];
-          });
-          this.$store.commit('getBlogData',{
-             data:data
-          });
+          this.getCategoryForBlog(this.$route.params.id);
+          this.blogData = data[0];
+          this.blogData.category = [];
         }).catch((error)=>{
           console.log(error);
         });
@@ -89,9 +83,9 @@ export default {
           }
         }).then((response) => {
             var data = { blogId :id, data: response.data};
-            this.$store.commit('addTagsForBlog',{
-                data:data
-            });
+            if(this.blogData.blogId == data.blogId){
+                 this.blogData.category = data.data;
+            }
         }).catch(function(error){
             console.log(error);
         });

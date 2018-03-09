@@ -27,6 +27,7 @@
                    <p>{{displayDescription(item.description)}}</p>
                  </div>
                </div>
+                <Page :total="100" show-elevator class-name="page" @on-change="switchPage"></Page>
                </div>
             </i-col>
             <i-col span="6" class="layout-menu-left">
@@ -69,14 +70,23 @@ export default {
         //取回所有的分类信息
         this.getCategoryAll();
         //按条件取回其他数据
-        if(!!this.categoryId)  this.getCategory();
-        else this.getAll();
+        if(!!this.categoryId){
+          this.getCategory();
+          this.getPageCount(this.categoryId);
+        }else{
+          this.getAll();
+          this.getPageCount(null);
+        }
     },
     components:{
 
     },
     data(){
       return{
+        blogData:[],
+        cateAllArr:[],
+        pageNum:0,
+        totalPage:0
       }
     },
     watch:{
@@ -88,12 +98,6 @@ export default {
     computed:{
       categoryId:function(){//如何设置为data，则无法更新视图
         return this.$route.params.category;
-      },
-      blogData:function(){
-        return this.$store.state.blogData;
-      },
-      cateAllArr:function(){
-        return this.$store.state.cateAllArr;
       },
       getCategoryName:function(){
         var blogData = this.$store.state.blogData;
@@ -111,6 +115,17 @@ export default {
       }
     },
     methods:{
+      getPageCount(id){
+        axios.get('/getPageCount',{
+          params:{
+            id: id
+          }
+        }).then((response) => {
+            this.totalPage = response.data;
+        }).catch((e)=>{
+            console.log(e);
+        });
+      },
       getAll(){
         axios.get('/getAll',{
           params:{
@@ -122,10 +137,8 @@ export default {
                 this.getCategoryForBlog(val.blogId);
                 val.category=[];
             });
-            this.$store.commit('getBlogData',{
-               data:data
-            });
-          }).catch(function (error) {
+            this.blogData = data;
+          }).catch((error)=>{
             console.log(error);
           });
       },
@@ -141,9 +154,7 @@ export default {
                 this.getCategoryForBlog(val.blogId);
                 val.category=[];
             });
-            this.$store.commit('getBlogData',{
-                data:data
-            });
+            this.blogData = data;
         }).catch((error)=>{
             console.log(error);
         });
@@ -156,9 +167,7 @@ export default {
           }
         }).then((response) => {
             var data = response.data;
-            this.$store.commit('getCategoryAll',{
-                data:data
-            });
+            this.cateAllArr = data;
         }).catch((error)=>{
             console.log(error);
         });
@@ -177,12 +186,17 @@ export default {
           }
         }).then((response) => {
             var data = { blogId :id, data: response.data};
-            this.$store.commit('addTagsForBlog',{
-                data:data
+            this.blogData.forEach(function(val){
+              if(val.blogId == data.blogId){
+                 val.category = data.data;
+              }
             });
         }).catch(function(error){
             console.log(error);
         });
+      },
+      switchPage(num){
+        console.log(num);
       },
       drawEcharts(){
         require("./china.js");
@@ -751,5 +765,9 @@ body {
    padding: 16px 0;
    text-align: left;
    text-indent: 2em;
+}
+.main-content .page{
+  display: inline-block;
+  margin:0 auto;
 }
 </style>
